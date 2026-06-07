@@ -1,0 +1,12 @@
+name: ecosdm-cr
+title: EcoSdm-cr
+username: manuelspinola
+account: manuelspinola
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 019ea44a-b666-be51-bb1c-2b0b575ff5e3
+bundleId:
+url:
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
