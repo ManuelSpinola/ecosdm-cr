@@ -4,9 +4,9 @@ username: manuelspinola
 account: manuelspinola
 server: connect.posit.cloud
 hostUrl: https://api.connect.posit.cloud/v1
-appId: 019ea44a-b666-be51-bb1c-2b0b575ff5e3
+appId: 019ea74c-cfd0-82fd-ce4e-f9784fe2d57f
 bundleId:
-url:
+url: https://connect.posit.cloud/manuelspinola/content/019ea74c-cfd0-82fd-ce4e-f9784fe2d57f
 version: 1
 asMultiple: FALSE
 asStatic: FALSE

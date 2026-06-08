@@ -1,3 +1,4 @@
+library(bslib)
 # ============================================================
 # helpers.R — Configuración compartida entre módulos
 # Explorador de Especies Terrestres · Costa Rica

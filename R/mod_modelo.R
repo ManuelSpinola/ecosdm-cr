@@ -15,7 +15,7 @@ mod_modelo_server <- function(id, estado, sidebar_vals) {
     # ── Disparar flujo cuando los registros están listos ─────
     # Observa estado$registros_sf en lugar del botón para garantizar
     # que los registros ya están disponibles antes de modelar
-    observeEvent(estado$registros_sf, {
+    observeEvent(estado$registros_sf, priority = 10, ignoreNULL = TRUE, ignoreInit = TRUE, {
       req(!is.null(estado$registros_sf))
       req(nrow(estado$registros_sf) > 0)
 
