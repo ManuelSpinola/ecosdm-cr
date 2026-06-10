@@ -95,17 +95,17 @@ mod_modelo_server <- function(id, estado, sidebar_vals) {
         sf::st_drop_geometry(pa)[, vars_cov, drop = FALSE], is.numeric
       )]
 
-      filtro <- filtrar_outliers_ambientales(pa, vars_cov)
-      pa     <- filtro$pa_limpio
+      filtro <- h3sdm::h3sdm_filter_outliers(pa, vars_cov)
+      pa     <- filtro$pa_clean
 
       n_pres_post <- sum(pa$presence == "1", na.rm = TRUE)
 
-      if (filtro$n_eliminados > 0) {
+      if (filtro$n_removed > 0) {
         showNotification(
           paste0(
-            "\u26a0\ufe0f ", filtro$n_eliminados,
+            "\u26a0\ufe0f ", filtro$n_removed,
             " registro(s) eliminado(s) como outlier(s) ambiental(es) ",
-            "(D\u00b2 > ", round(filtro$umbral, 1), "). ",
+            "(D^2 > ", round(filtro$threshold_d2, 1), "). ",
             "Se usaron ", n_pres_post, " presencias para el modelo."
           ),
           type = "warning", duration = 8
