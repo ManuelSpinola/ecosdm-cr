@@ -105,7 +105,7 @@ ui <- page_navbar(
                     "Acerca de"),
     div(
       class = "p-4",
-      style = "max-width:800px; margin:auto; min-height:calc(100vh - 160px);",
+      style = "max-width:800px; margin:auto; min-height:calc(100vh - 120px); display:flex; flex-direction:column;",
 
       h4("Explorador de Especies Terrestres de Costa Rica",
          style = paste0("color:", colores$primario, "; font-weight:700;")),
@@ -165,27 +165,30 @@ ui <- page_navbar(
         )
       ),
 
-      card(
-        card_header(bs_icon("person", class = "me-1"), "Cr\u00e9ditos"),
-        card_body(
-          p(strong("Manuel Sp\u00ednola"),
-            " \u2014 ICOMVIS, Universidad Nacional de Costa Rica"),
-          p("App desarrollada con asistencia de ",
-            tags$a("Claude (Anthropic)",
-                   href = "https://www.anthropic.com",
-                   target = "_blank"), " y con ",
-            tags$a("h3sdm",
-                   href = "https://github.com/ManuelSpinola/h3sdm",
-                   target = "_blank"), ", ",
-            tags$a("Shiny",
-                   href = "https://shiny.posit.co",
-                   target = "_blank"), ", ",
-            tags$a("bslib",
-                   href = "https://rstudio.github.io/bslib",
-                   target = "_blank"), " y ",
-            tags$a("leafgl",
-                   href = "https://github.com/r-spatial/leafgl",
-                   target = "_blank"), ".")
+      div(
+        style = "margin-top:auto; padding-top:1rem;",
+        card(
+          card_header(bs_icon("person", class = "me-1"), "Cr\u00e9ditos"),
+          card_body(
+            p(strong("Manuel Sp\u00ednola"),
+              " \u2014 ICOMVIS, Universidad Nacional de Costa Rica"),
+            p("App desarrollada con asistencia de ",
+              tags$a("Claude (Anthropic)",
+                     href = "https://www.anthropic.com",
+                     target = "_blank"), " y con ",
+              tags$a("h3sdm",
+                     href = "https://github.com/ManuelSpinola/h3sdm",
+                     target = "_blank"), ", ",
+              tags$a("Shiny",
+                     href = "https://shiny.posit.co",
+                     target = "_blank"), ", ",
+              tags$a("bslib",
+                     href = "https://rstudio.github.io/bslib",
+                     target = "_blank"), " y ",
+              tags$a("leafgl",
+                     href = "https://github.com/r-spatial/leafgl",
+                     target = "_blank"), ".")
+          )
         )
       )
     )
