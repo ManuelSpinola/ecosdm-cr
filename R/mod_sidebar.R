@@ -99,6 +99,19 @@ mod_sidebar_ui <- function(id) {
 
     br(), br(),
 
+    # Spinner de descarga (oculto por defecto)
+    shinyjs::hidden(
+      div(
+        id = ns("spinner_descarga"),
+        class = "alert alert-info small py-2 px-3 mb-2 text-center",
+        tags$span(
+          class = "spinner-border spinner-border-sm me-2",
+          role  = "status"
+        ),
+        "Descargando registros…"
+      )
+    ),
+
     # Estado / feedback
     uiOutput(ns("estado_modelo")),
 
@@ -198,6 +211,9 @@ mod_sidebar_server <- function(id, estado) {
         return()
       }
 
+      # Mostrar spinner de descarga
+      shinyjs::show("spinner_descarga")
+
       # Resetear estado anterior
       estado$registros_sf        <- NULL
       estado$registros_listos    <- NULL
@@ -215,6 +231,11 @@ mod_sidebar_server <- function(id, estado) {
       estado$resolucion <- input$resolucion
       estado$algoritmo  <- .ALGORITMO
       estado$trigger_modelar <- Sys.time()
+    })
+
+    # Ocultar spinner cuando lleguen los registros
+    observeEvent(estado$registros_listos, ignoreNULL = TRUE, {
+      shinyjs::hide("spinner_descarga")
     })
 
     # Retornar reactivos — misma interfaz que antes

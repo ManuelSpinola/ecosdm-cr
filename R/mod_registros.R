@@ -66,6 +66,8 @@ mod_registros_server <- function(id, estado, sidebar_vals) {
       )
       if (length(providers_sel) == 0) return()
 
+      estado$descargando <- TRUE
+
       # Descarga fuera de withProgress para no interferir con conexiones HTTP
       tryCatch({
 
@@ -84,11 +86,13 @@ mod_registros_server <- function(id, estado, sidebar_vals) {
                    "' en Costa Rica."),
             type = "warning", duration = 6)
           estado$registros_sf <- NULL
+          estado$descargando  <- FALSE
           return()
         }
 
         estado$registros_sf     <- recs
         estado$registros_listos <- Sys.time()
+        estado$descargando      <- FALSE
 
         # Actualizar mapa
         coords <- sf::st_coordinates(sf::st_transform(recs, 4326))
@@ -122,6 +126,7 @@ mod_registros_server <- function(id, estado, sidebar_vals) {
           type = "message", duration = 4)
 
       }, error = function(e) {
+        estado$descargando <- FALSE
         showNotification(paste("Error al descargar registros:", conditionMessage(e)),
                          type = "error", duration = 8)
       })

@@ -206,7 +206,7 @@ mod_modelo_server <- function(id, estado, sidebar_vals) {
       estado$resolucion      <- res
 
       showNotification(
-        paste0("Modelo ", toupper(alg), " ajustado — ", n_pres, " presencias."),
+        paste0("Modelo ", toupper(alg), " ajustado — ", n_pres_post, " hexágonos de presencia."),
         type = "message", duration = 4)
 
       # 9. Predicción presente

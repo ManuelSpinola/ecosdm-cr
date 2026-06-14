@@ -210,6 +210,7 @@ server <- function(input, output, session) {
   estado <- reactiveValues(
     registros_sf        = NULL,
     registros_listos    = NULL,
+    descargando         = FALSE,
     modelo_ajustado     = NULL,
     prediccion_sf       = NULL,
     pred_futuro_sf      = NULL,
