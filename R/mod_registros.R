@@ -66,65 +66,64 @@ mod_registros_server <- function(id, estado, sidebar_vals) {
       )
       if (length(providers_sel) == 0) return()
 
-      withProgress(message = paste("Descargando registros de", especie, "…"), {
-        tryCatch({
+      # Descarga fuera de withProgress para no interferir con conexiones HTTP
+      tryCatch({
 
+        recs <- h3sdm::h3sdm_get_records(
+          species           = especie,
+          aoi_sf            = h3sdm::cr_outline_c,
+          providers         = providers_sel,
+          limit             = sidebar_vals$limite(),
+          remove_duplicates = TRUE,
+          date              = c("1990-01-01", as.character(Sys.Date()))
+        )
 
-          recs <- h3sdm::h3sdm_get_records(
-            species           = especie,
-            aoi_sf            = h3sdm::cr_outline_c,
-            providers         = providers_sel,
-            limit             = sidebar_vals$limite(),
-            remove_duplicates = TRUE,
-            date              = c("1990-01-01", as.character(Sys.Date()))
-          )
-
-          if (is.null(recs) || nrow(recs) == 0) {
-            showNotification(
-              paste0("No se encontraron registros de '", especie,
-                     "' en Costa Rica."),
-              type = "warning", duration = 6)
-            estado$registros_sf <- NULL
-            return()
-          }
-
-          estado$registros_sf <- recs
-
-          # Actualizar mapa
-          coords <- sf::st_coordinates(sf::st_transform(recs, 4326))
-          bbox   <- sf::st_bbox(sf::st_transform(recs, 4326))
-          leaflet::leafletProxy(session$ns("mapa_registros")) |>
-            leaflet::clearMarkers() |>
-            leaflet::addCircleMarkers(
-              lng         = coords[, 1],
-              lat         = coords[, 2],
-              radius      = 5,
-              color       = "#a31e32",
-              fillColor   = "#00A651",
-              fillOpacity = 0.8,
-              weight      = 1,
-              popup       = if ("source" %in% names(recs))
-                              paste0("<b>", especie, "</b><br>",
-                                     sf::st_drop_geometry(recs)$source)
-                            else especie
-            ) |>
-            leaflet::addPolygons(
-              data        = sf::st_transform(h3sdm::cr_outline_c, 4326),
-              color       = "#003865",
-              fillOpacity = 0,
-              weight      = 1.5
-            ) |>
-            leaflet::fitBounds(bbox[["xmin"]], bbox[["ymin"]],
-                               bbox[["xmax"]], bbox[["ymax"]])
-
+        if (is.null(recs) || nrow(recs) == 0) {
           showNotification(
-            paste0(nrow(recs), " registros descargados."),
-            type = "message", duration = 4)
+            paste0("No se encontraron registros de '", especie,
+                   "' en Costa Rica."),
+            type = "warning", duration = 6)
+          estado$registros_sf <- NULL
+          return()
+        }
 
-        }, error = function(e) {
-          showNotification(paste("Error al descargar registros:", conditionMessage(e)),
-                           type = "error", duration = 8)
-        })
+        estado$registros_sf     <- recs
+        estado$registros_listos <- Sys.time()
+
+        # Actualizar mapa
+        coords <- sf::st_coordinates(sf::st_transform(recs, 4326))
+        bbox   <- sf::st_bbox(sf::st_transform(recs, 4326))
+        leaflet::leafletProxy(session$ns("mapa_registros")) |>
+          leaflet::clearMarkers() |>
+          leaflet::addCircleMarkers(
+            lng         = coords[, 1],
+            lat         = coords[, 2],
+            radius      = 5,
+            color       = "#a31e32",
+            fillColor   = "#00A651",
+            fillOpacity = 0.8,
+            weight      = 1,
+            popup       = if ("provider" %in% names(recs))
+                            paste0("<b>", especie, "</b><br>",
+                                   sf::st_drop_geometry(recs)$provider)
+                          else especie
+          ) |>
+          leaflet::addPolygons(
+            data        = sf::st_transform(h3sdm::cr_outline_c, 4326),
+            color       = "#003865",
+            fillOpacity = 0,
+            weight      = 1.5
+          ) |>
+          leaflet::fitBounds(bbox[["xmin"]], bbox[["ymin"]],
+                             bbox[["xmax"]], bbox[["ymax"]])
+
+        showNotification(
+          paste0(nrow(recs), " registros descargados."),
+          type = "message", duration = 4)
+
+      }, error = function(e) {
+        showNotification(paste("Error al descargar registros:", conditionMessage(e)),
+                         type = "error", duration = 8)
       })
     })
 
@@ -137,17 +136,38 @@ mod_registros_server <- function(id, estado, sidebar_vals) {
                  "Presioná 'Ver distribución' para descargar registros."))
       }
       div(
-        class = "alert alert-success small py-2 px-3 mb-0",
-        bs_icon("check-circle-fill", class = "me-1"),
-        strong(nrow(recs)), " registros en Costa Rica"
+        div(
+          class = "alert alert-success small py-2 px-3 mb-2",
+          bs_icon("check-circle-fill", class = "me-1"),
+          strong(nrow(recs)), " registros encontrados"
+        ),
+        if (!is.null(estado$n_registros_modelo)) {
+          div(
+            class = "alert alert-info small py-2 px-3 mb-2",
+            bs_icon("funnel-fill", class = "me-1"),
+            strong(estado$n_registros_modelo), " hexágonos de presencia en el modelo",
+            if (!is.null(estado$n_removidos) && estado$n_removidos > 0)
+              div(class = "text-muted mt-1",
+                  bs_icon("exclamation-triangle", class = "me-1"),
+                  estado$n_removidos, " removidos como outliers ambientales")
+          )
+        },
+        if (!is.null(estado$n_hex_pres)) {
+          div(
+            class = "alert alert-secondary small py-2 px-3 mb-0",
+            bs_icon("hexagon-fill", class = "me-1"),
+            strong(estado$n_hex_pres), " presencia · ",
+            strong(estado$n_hex_aus), " pseudo-ausencia"
+          )
+        }
       )
     })
 
     # Tabla por fuente
     output$tabla_fuentes <- renderUI({
       recs <- estado$registros_sf
-      if (is.null(recs) || !"source" %in% names(recs)) return(NULL)
-      df <- as.data.frame(table(sf::st_drop_geometry(recs)$source))
+      if (is.null(recs) || !"provider" %in% names(recs)) return(NULL)
+      df <- as.data.frame(table(sf::st_drop_geometry(recs)$provider))
       names(df) <- c("Fuente", "Registros")
       tags$table(
         class = "table table-sm small mb-0",

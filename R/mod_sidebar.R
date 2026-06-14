@@ -199,12 +199,17 @@ mod_sidebar_server <- function(id, estado) {
       }
 
       # Resetear estado anterior
-      estado$registros_sf       <- NULL
-      estado$modelo_ajustado    <- NULL
-      estado$prediccion_sf      <- NULL
-      estado$pred_futuro_sf     <- NULL
-      estado$aoa_sf             <- NULL
+      estado$registros_sf        <- NULL
+      estado$registros_listos    <- NULL
+      estado$modelo_ajustado     <- NULL
+      estado$prediccion_sf       <- NULL
+      estado$pred_futuro_sf      <- NULL
+      estado$aoa_sf              <- NULL
       estado$error_sin_registros <- FALSE
+      estado$n_registros_modelo  <- NULL
+      estado$n_removidos         <- NULL
+      estado$n_hex_pres          <- NULL
+      estado$n_hex_aus           <- NULL
 
       # Guardar parámetros en estado global
       estado$resolucion <- input$resolucion

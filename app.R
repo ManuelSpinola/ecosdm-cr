@@ -208,17 +208,22 @@ ui <- page_navbar(
 server <- function(input, output, session) {
 
   estado <- reactiveValues(
-    registros_sf       = NULL,
-    modelo_ajustado    = NULL,
-    prediccion_sf      = NULL,
-    pred_futuro_sf     = NULL,
-    aoa_sf             = NULL,
-    aoa_futuro_sf      = NULL,
-    dat_rv             = NULL,
-    cv_split_rv        = NULL,
-    algoritmo          = "rf",
-    resolucion         = "7",
-    error_sin_registros = FALSE
+    registros_sf        = NULL,
+    registros_listos    = NULL,
+    modelo_ajustado     = NULL,
+    prediccion_sf       = NULL,
+    pred_futuro_sf      = NULL,
+    aoa_sf              = NULL,
+    aoa_futuro_sf       = NULL,
+    dat_rv              = NULL,
+    cv_split_rv         = NULL,
+    algoritmo           = "rf",
+    resolucion          = "7",
+    error_sin_registros = FALSE,
+    n_registros_modelo  = NULL,
+    n_removidos         = NULL,
+    n_hex_pres          = NULL,
+    n_hex_aus           = NULL
   )
 
   sidebar_vals <- mod_sidebar_server("sidebar", estado)

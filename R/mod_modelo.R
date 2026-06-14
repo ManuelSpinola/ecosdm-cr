@@ -13,9 +13,9 @@ mod_modelo_server <- function(id, estado, sidebar_vals) {
   moduleServer(id, function(input, output, session) {
 
     # ── Disparar flujo cuando los registros están listos ─────
-    # Observa estado$registros_sf en lugar del botón para garantizar
-    # que los registros ya están disponibles antes de modelar
-    observeEvent(estado$registros_sf, priority = 10, ignoreNULL = TRUE, ignoreInit = TRUE, {
+    # Observa estado$registros_listos (señal explícita) para garantizar
+    # que TODOS los providers terminaron antes de modelar
+    observeEvent(estado$registros_listos, ignoreNULL = TRUE, ignoreInit = TRUE, {
       req(!is.null(estado$registros_sf))
       req(nrow(estado$registros_sf) > 0)
 
@@ -100,13 +100,19 @@ mod_modelo_server <- function(id, estado, sidebar_vals) {
 
       n_pres_post <- sum(pa$presence == "1", na.rm = TRUE)
 
+      # Guardar en estado para visualización permanente
+      estado$n_registros_modelo <- n_pres_post
+      estado$n_removidos        <- filtro$n_removed
+      estado$n_hex_pres         <- n_pres_post
+      estado$n_hex_aus          <- sum(pa$presence == "0", na.rm = TRUE)
+
       if (filtro$n_removed > 0) {
         showNotification(
           paste0(
             "\u26a0\ufe0f ", filtro$n_removed,
             " registro(s) eliminado(s) como outlier(s) ambiental(es) ",
             "(D^2 > ", round(filtro$threshold_d2, 1), "). ",
-            "Se usaron ", n_pres_post, " presencias para el modelo."
+            "Se usaron ", n_pres_post, " hexágonos de presencia para el modelo."
           ),
           type = "warning", duration = 8
         )
